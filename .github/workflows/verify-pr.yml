@@ -22,8 +22,10 @@ jobs:
       - name: Import GPG key
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --quiet --import
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --quiet \
+            --passphrase "${GPG_PASSPHRASE}" --import
 
       - name: Verify Maven package with release profile
         env:
