@@ -22,13 +22,14 @@ jobs:
       - name: Import GPG key
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_SECRET_KEY }}
-          GPG_PASSPHRASE: MAVEN_GPG_PASSPHRASE
+          GPG_PASSPHRASE:  ${{ secrets.GPG_SECRET_KEY_PASSWORD }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --quiet \
             --passphrase "${GPG_PASSPHRASE}" --import
 
       - name: Verify Maven package with release profile
         env:
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_SECRET_KEY_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_SECRET_KEY_PASSWORD }}
         run: |
-          mvn --batch-mode --update-snapshots clean verify -Prelease
+          mvn --batch-mode --update-snapshots clean verify \
+            -Prelease -Dgpg.passphrase="${GPG_PASSPHRASE}"
