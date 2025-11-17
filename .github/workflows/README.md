@@ -5,7 +5,7 @@ This directory contains GitHub Actions workflows for CI/CD of the wizard Maven p
 ## Workflows
 
 ### 1. Verify on Branch (`verify-branch.yml`)
-- **Trigger**: Push to any branch except `main` and `master`
+- **Trigger**: Push to any branch except `master`
 - **Purpose**: Verifies the Maven package by running `mvn verify`
 - **Requirements**: None (uses standard Maven build)
 
@@ -17,8 +17,8 @@ This directory contains GitHub Actions workflows for CI/CD of the wizard Maven p
   - Attaches sources and javadoc
   - Signs artifacts with GPG
 - **Required Secrets**:
-  - `GPG_PRIVATE_KEY`: The GPG private key for signing artifacts
-  - `GPG_PASSPHRASE`: The passphrase for the GPG private key
+  - `GPG_SECRET_KEY`: The GPG private key for signing artifacts
+  - `GPG_SECRET_KEY_PASSWORD`: The passphrase for the GPG private key
 
 ### 3. Publish Release (`publish-release.yml`)
 - **Trigger**: When a pull request is merged to `main` or `master`
@@ -29,25 +29,26 @@ This directory contains GitHub Actions workflows for CI/CD of the wizard Maven p
   - Signs artifacts with GPG
   - Publishes to Maven Central (OSSRH)
 - **Required Secrets**:
-  - `GPG_PRIVATE_KEY`: The GPG private key for signing artifacts
-  - `GPG_PASSPHRASE`: The passphrase for the GPG private key
-  - `MAVEN_USERNAME`: Username for Maven repository (OSSRH)
-  - `MAVEN_PASSWORD`: Password/token for Maven repository (OSSRH)
+  - `GPG_SECRET_KEY`: The GPG private key for signing artifacts
+  - `GPG_SECRET_KEY_PASSWORD`: The passphrase for the GPG private key
+  - `OSSRH_USERNAME`: Username for Maven repository (Sonatype user token)
+  - `OSSRH_TOKEN`: Password/token for Maven repository (Sonatype user token)
 
 ## Setting Up Secrets
 
 To configure the required secrets, go to your repository's Settings > Secrets and variables > Actions, and add:
 
-1. **GPG_PRIVATE_KEY**: Export your GPG private key in ASCII format:
+1. **GPG_SECRET_KEY**: Export your GPG private key in ASCII format:
    ```bash
-   gpg --armor --export-secret-keys YOUR_KEY_ID
+      gpg --list-secret-keys --keyid-format=long
+      gpg --export-secret-keys -a <key-id> > secret.txt
    ```
 
-2. **GPG_PASSPHRASE**: The passphrase used to protect your GPG private key
+2. **GPG_SECRET_KEY_PASSWORD**: The passphrase used to protect your GPG private key
 
-3. **MAVEN_USERNAME**: Your Sonatype OSSRH username
+3. **OSSRH_USERNAME**: Your Sonatype user token username
 
-4. **MAVEN_PASSWORD**: Your Sonatype OSSRH password or token
+4. **OSSRH_TOKEN**: Your Sonatype user token
 
 ## Maven Release Profile
 
