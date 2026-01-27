@@ -9,14 +9,15 @@ import java.util.function.Function;
  * A simple implementation of the StepManager interface.
  *
  * @param <T> StepState type
- * @param <U> Value type held by the StepState it means the type of date in the leaf step
+ * @param <L> Value type held by the StepState it means the type of data in the leaf step
+ * @param <H> Status type held by the StepState it means the type of data in the hierarchical step
  */
-public class SimpleStepManager<T extends StepState<U>, U> implements StepManager<T, U> {
+public class SimpleStepManager<T extends StepState<H, L>, H, L> implements StepManager<T, H, L> {
 
     private final T state;
-    private final HierarchicalStep root;
+    private final HierarchicalStep<H> root;
 
-    public SimpleStepManager(T state, HierarchicalStep root) {
+    public SimpleStepManager(T state, HierarchicalStep<H> root) {
         assert state != null : "state must not be null";
         assert root != null : "root must not be null";
 
@@ -24,11 +25,25 @@ public class SimpleStepManager<T extends StepState<U>, U> implements StepManager
         this.root = root;
     }
 
+    /**
+     * <p>
+     * Moves to the next step in the wizard only if the leaf step is valid.
+     * </p>
+     */
     @Override
     public void next() {
+        if (!state.isValid()) {
+            return;
+        }
+
         step(HierarchicalStep::next, this::next);
     }
 
+    /**
+     * <p>
+     * Moves to the previous step in the wizard. Independent of the leaf step validity.
+     * </p>
+     */
     @Override
     public void prev() {
         step(HierarchicalStep::prev, this::prev);
@@ -39,11 +54,7 @@ public class SimpleStepManager<T extends StepState<U>, U> implements StepManager
         return state;
     }
 
-    private void step(Function<HierarchicalStep, Step> stepDirectionFnc, Runnable directionFnc) {
-        if (!state.isValid()) {
-            return;
-        }
-
+    private void step(Function<HierarchicalStep<H>, Step> stepDirectionFnc, Runnable directionFnc) {
         state.completeLeafStep();
 
         var currentHierarchicalStep = state.getHierarchicalStep();
@@ -51,13 +62,14 @@ public class SimpleStepManager<T extends StepState<U>, U> implements StepManager
 
         if (stepOptional.isPresent()) {
             var step = stepOptional.get();
-            if (step instanceof HierarchicalStep hierarchicalStep) {
+            if (step instanceof HierarchicalStep<?>) {
+                @SuppressWarnings("unchecked") var hierarchicalStep = (HierarchicalStep<H>) step;
                 state.setHierarchicalStep(hierarchicalStep);
                 state.setLeafStep(null);
                 directionFnc.run();
             } else {
-                // noinspection unchecked
-                state.setLeafStep((LeafStep<U>) step);
+                @SuppressWarnings("unchecked") var leafStep = (LeafStep<L>) step;
+                state.setLeafStep(leafStep);
             }
         } else {
             var parent = state.getParent();

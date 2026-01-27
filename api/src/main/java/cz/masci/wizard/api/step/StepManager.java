@@ -7,9 +7,10 @@ package cz.masci.wizard.api.step;
  * </pre>
  *
  * @param <T> the type of StepState
- * @param <U> the type of value held by the StepState
+ * @param <L> the type of value held by the LeafStep
+ * @param <H> the type of status held by the HierarchicalStep
  */
-public interface StepManager<T extends StepState<U>, U> {
+public interface StepManager<T extends StepState<H, L>, H, L> {
   void next();
   void prev();
   T get();

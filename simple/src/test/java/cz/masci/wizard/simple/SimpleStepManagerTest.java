@@ -19,19 +19,19 @@ import static org.mockito.Mockito.*;
 class SimpleStepManagerTest {
 
     @Mock
-    HierarchicalStep currentHierarchicalStep;
+    HierarchicalStep<String> currentHierarchicalStep;
     @Mock
     LeafStep<String> leafStep;
     @Mock
-    HierarchicalStep hierarchicalStep;
+    HierarchicalStep<String> hierarchicalStep;
 
     @Mock
-    private StepState<String> state;
+    private StepState<String, String> state;
     @Mock
-    private HierarchicalStep root;
+    private HierarchicalStep<String> root;
 
     @InjectMocks
-    private SimpleStepManager<StepState<String>, String> stepManager;
+    private SimpleStepManager<StepState<String, String>, String, String> stepManager;
 
     // region constructor tests
     @Test
@@ -128,21 +128,8 @@ class SimpleStepManagerTest {
 
     // region prev tests
     @Test
-    void prev_whenStateIsInvalid_shouldDoNothing() {
-        // given
-        when(state.isValid()).thenReturn(false);
-
-        // when
-        stepManager.prev();
-
-        // then
-        verify(state, never()).completeLeafStep();
-    }
-
-    @Test
     void prev_whenOnLeafStep_shouldMoveToPrevLeafStep() {
         // given
-        when(state.isValid()).thenReturn(true);
         when(state.getHierarchicalStep()).thenReturn(currentHierarchicalStep);
         when(currentHierarchicalStep.prev()).thenReturn(leafStep);
 
@@ -157,7 +144,6 @@ class SimpleStepManagerTest {
     @Test
     void prev_whenOnFirstLeafStep_shouldMoveToPrevHierarchicalStep() {
         // given
-        when(state.isValid()).thenReturn(true);
         when(state.getHierarchicalStep()).thenReturn(currentHierarchicalStep).thenReturn(hierarchicalStep);
         when(currentHierarchicalStep.prev()).thenReturn(hierarchicalStep);
         when(hierarchicalStep.prev()).thenReturn(leafStep);
@@ -175,7 +161,6 @@ class SimpleStepManagerTest {
     @Test
     void prev_whenAtTheStart_shouldMoveToParent() {
         // given
-        when(state.isValid()).thenReturn(true);
         when(state.getHierarchicalStep()).thenReturn(currentHierarchicalStep).thenReturn(root);
         when(currentHierarchicalStep.prev()).thenReturn(null);
         when(state.getParent()).thenReturn(Optional.of(root)).thenReturn(Optional.empty());

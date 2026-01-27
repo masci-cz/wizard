@@ -26,6 +26,11 @@ public interface LeafStep<T> extends Step {
     void complete();
 
     /**
+     * Cancel the step unsetting the completed status.
+     */
+    void cancel();
+
+    /**
      * Check if the step is valid.
      *
      * @return true if the step is valid, false otherwise

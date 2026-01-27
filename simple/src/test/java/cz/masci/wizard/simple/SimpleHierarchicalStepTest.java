@@ -97,10 +97,10 @@ class SimpleHierarchicalStepTest {
         // given
         var beforeEntryCalled = new AtomicBoolean(false);
         var beforeNextCalled = new AtomicBoolean(false);
-        Consumer<SimpleHierarchicalStep> doBeforeEntry = s -> beforeEntryCalled.set(true);
-        Consumer<SimpleHierarchicalStep> doBeforeNext = s -> beforeNextCalled.set(true);
+        Consumer<SimpleHierarchicalStep<String>> doBeforeEntry = s -> beforeEntryCalled.set(true);
+        Consumer<SimpleHierarchicalStep<String>> doBeforeNext = s -> beforeNextCalled.set(true);
 
-        var hierarchicalStep = SimpleHierarchicalStep.builder()
+        var hierarchicalStep = SimpleHierarchicalStep.<String>builder()
                 .addChild(step1)
                 .doBeforeEntry(doBeforeEntry)
                 .doBeforeNext(doBeforeNext)
@@ -177,9 +177,9 @@ class SimpleHierarchicalStepTest {
     void prev_callsDoBeforePrev() {
         // given
         var beforePrevCalled = new AtomicBoolean(false);
-        Consumer<SimpleHierarchicalStep> doBeforePrev = s -> beforePrevCalled.set(true);
+        Consumer<SimpleHierarchicalStep<String>> doBeforePrev = s -> beforePrevCalled.set(true);
 
-        var hierarchicalStep = SimpleHierarchicalStep.builder()
+        var hierarchicalStep = SimpleHierarchicalStep.<String>builder()
                 .addChild(step1)
                 .addChild(step2)
                 .doBeforePrev(doBeforePrev)

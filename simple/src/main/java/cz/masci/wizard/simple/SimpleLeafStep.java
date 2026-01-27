@@ -18,8 +18,9 @@ public class SimpleLeafStep<T> implements LeafStep<T> {
     private final T value;
     @Getter
     private final String name;
-    private final Predicate<T> validator;
+    private final Predicate<SimpleLeafStep<T>> validator;
     private final Consumer<SimpleLeafStep<T>> complete;
+    private final Consumer<SimpleLeafStep<T>> cancel;
 
     /**
      * The step is valid when the validator predicate returns true for the current value.
@@ -29,7 +30,7 @@ public class SimpleLeafStep<T> implements LeafStep<T> {
     @Override
     public boolean isValid() {
         if (validator != null) {
-            return validator.test(value);
+            return validator.test(this);
         }
         return LeafStep.super.isValid();
     }
@@ -41,6 +42,16 @@ public class SimpleLeafStep<T> implements LeafStep<T> {
     public void complete() {
         if (complete != null) {
             complete.accept(this);
+        }
+    }
+
+    /**
+     * Cancel the current leaf step by invoking the cancel consumer if it is set.
+     */
+    @Override
+    public void cancel() {
+        if (cancel != null) {
+            cancel.accept(this);
         }
     }
 }

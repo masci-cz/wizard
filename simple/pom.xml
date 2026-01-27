@@ -19,11 +19,22 @@
     <properties>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>cz.masci.wizard</groupId>
+                <artifactId>wizard-bom</artifactId>
+                <version>${project.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>cz.masci.wizard</groupId>
             <artifactId>wizard-api</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
         <!-- Test dependencies -->

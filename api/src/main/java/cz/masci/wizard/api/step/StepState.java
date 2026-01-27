@@ -11,16 +11,17 @@ import java.util.Optional;
  * and get the parent hierarchical step.
  * </pre>
  *
- * @param <T> the type of value held by the leaf step
+ * @param <H> the type of status held by the hierarchical step
+ * @param <L> the type of value held by the leaf step
  */
-public interface StepState<T> {
-    void setLeafStep(LeafStep<T> leafStep);
+public interface StepState<H, L> {
+    void setLeafStep(LeafStep<L> leafStep);
 
-    LeafStep<T> getLeafStep();
+    LeafStep<L> getLeafStep();
 
-    void setHierarchicalStep(HierarchicalStep hierarchicalStep);
+    void setHierarchicalStep(HierarchicalStep<H> hierarchicalStep);
 
-    HierarchicalStep getHierarchicalStep();
+    HierarchicalStep<H> getHierarchicalStep();
 
     /**
      * The step is valid when the current leaf step is valid or there is no leaf step set.
@@ -38,9 +39,19 @@ public interface StepState<T> {
      *
      * @return an {@link Optional} containing the current leaf step value or empty if there is no leaf step set
      */
-    default Optional<T> getValue() {
+    default Optional<L> getValue() {
         return Optional.ofNullable(getLeafStep())
                 .map(LeafStep::getValue);
+    }
+
+    /**
+     * Get the current leaf step value.
+     *
+     * @return an {@link Optional} containing the current leaf step value or empty if there is no leaf step set
+     */
+    default Optional<H> getStatus() {
+        return Optional.ofNullable(getHierarchicalStep())
+                .map(HierarchicalStep::getStatus);
     }
 
     /**
@@ -66,7 +77,7 @@ public interface StepState<T> {
      *
      * @return an {@link Optional} containing the parent hierarchical step or empty if there is no parent
      */
-    default Optional<HierarchicalStep> getParent() {
+    default Optional<HierarchicalStep<H>> getParent() {
         return Optional.ofNullable(getHierarchicalStep())
                 .map(HierarchicalStep::getParent);
     }
