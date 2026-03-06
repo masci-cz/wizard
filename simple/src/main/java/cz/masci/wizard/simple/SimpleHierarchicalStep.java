@@ -29,11 +29,14 @@ import java.util.function.Consumer;
  * while the hooks for next and previous steps are executed each time the respective navigation occurs.
  * Also, the entry hook is executed for both directions when reaching the end or the beginning of the child steps.
  * </pre>
+ *
+ * @param <T> the type of value held by this hierarchical step (e.g. aggregate status or summary data)
  */
 public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
 
     private static final BiPredicate<Integer, Step> NO_SKIP = (idx, step) -> false;
 
+    /** The ordered list of child steps managed by this hierarchical step. */
     protected final List<Step> children = new ArrayList<>();
     private final Consumer<SimpleHierarchicalStep<T>> doBeforeEntry;
     private final Consumer<SimpleHierarchicalStep<T>> doBeforeReverseEntry;
@@ -54,6 +57,22 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
     @Getter
     private final T status;
 
+    /**
+     * Creates a new {@code SimpleHierarchicalStep} with the given child steps and optional hooks/predicates.
+     *
+     * @param children                 the ordered list of child steps; each {@link HierarchicalStep} will have its parent set to this step
+     * @param status                   an optional value representing aggregate state of this hierarchical step
+     * @param doBeforeEntry            hook executed once when this step is first entered (forward direction)
+     * @param doBeforeReverseEntry     hook executed once when this step is re-entered from the end (backward direction)
+     * @param doBeforeNext             hook executed before moving to the next child step
+     * @param doAfterNext              hook executed after moving to the next child step
+     * @param doBeforePrev             hook executed before moving to the previous child step
+     * @param doAfterPrev              hook executed after moving to the previous child step
+     * @param skipNextStepPredicate    predicate {@code (index, step) -> boolean} returning {@code true} when the candidate next step should be skipped
+     * @param skipPrevStepPredicate    predicate {@code (index, step) -> boolean} returning {@code true} when the candidate previous step should be skipped
+     * @param cancelNextStepPredicate  predicate {@code (index, step) -> boolean} returning {@code true} to cancel the forward navigation (index stays unchanged - could be changed in doBeforeNext)
+     * @param cancelPrevStepPredicate  predicate {@code (index, step) -> boolean} returning {@code true} to cancel the backward navigation (index stays unchanged - could be changed in doBeforePrev)
+     */
     @Builder
     public SimpleHierarchicalStep(
             @Singular("addChild") List<Step> children,
@@ -146,7 +165,6 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
             doBeforeReverseEntry.accept(this);
         }
         // do before prev step
-        // TODO GoTo step has to be propagated to StepManager but event then there is a problem with stepping into hierarchical step moving backward
         var cancelStep = cancelPrevStepPredicate.test(currentIdx, this);
         doBeforePrev.accept(this);
         if (!cancelStep) {
@@ -167,7 +185,7 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
     }
 
     /**
-     * Resets the hierarchical step and all its child hierarchical steps to their initial state.</br>
+     * Resets the hierarchical step and all its child hierarchical steps to their initial state.
      * Returns the hierarchical step to before the first child step.
      */
     @Override
@@ -175,6 +193,9 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
         rewindTo(-1);
     }
 
+    /**
+     * Rewinds the hierarchical step and all its child hierarchical steps to the first child step.
+     */
     @Override
     public void rewind() {
         rewindTo(0);
@@ -194,6 +215,13 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
         }
     }
 
+    /**
+     * Returns the current leaf step of the given type, searching recursively into nested hierarchical steps.
+     *
+     * @param <S>   the type of the leaf step to find
+     * @param clazz the class of the leaf step to find
+     * @return an {@link Optional} containing the current leaf step if it matches the given type, or empty otherwise
+     */
     public <S extends LeafStep<?>> Optional<S> getCurrentLeafStep(Class<S> clazz) {
         Optional<S> leafStep = Optional.empty();
 
@@ -225,14 +253,31 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
         return children.size();
     }
 
+    /**
+     * Returns {@code true} if the current step is the first child step or no step has been entered yet.
+     *
+     * @return {@code true} if at or before the first child step
+     */
     public boolean isFirstStep() {
         return currentIdx <= 0;
     }
 
+    /**
+     * Returns {@code true} if the current step is the last child step or all steps have been passed.
+     *
+     * @return {@code true} if at or after the last child step
+     */
     public boolean isLastStep() {
         return currentIdx >= children.size() - 1;
     }
 
+    /**
+     * Explicitly sets the current step index.
+     * Useful for jumping to a specific position in the step sequence.
+     *
+     * @param idx the index to set; must be in the range {@code -1} (before first) to {@code children.size()} (after last)
+     * @throws IndexOutOfBoundsException if {@code idx} is out of the valid range
+     */
     public void setCurrentIdx(int idx) {
         if (idx < -1 || idx > children.size()) {
             throw new IndexOutOfBoundsException("Index: " + idx + ", Size: " + children.size());

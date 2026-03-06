@@ -15,12 +15,32 @@ import java.util.Optional;
  * @param <L> the type of value held by the leaf step
  */
 public interface StepState<H, L> {
+    /**
+     * Sets the currently active leaf step.
+     *
+     * @param leafStep the {@link LeafStep} to set as active, or {@code null} to clear it
+     */
     void setLeafStep(LeafStep<L> leafStep);
 
+    /**
+     * Returns the currently active leaf step.
+     *
+     * @return the active {@link LeafStep}, or {@code null} if no leaf step is currently active
+     */
     LeafStep<L> getLeafStep();
 
+    /**
+     * Sets the currently active hierarchical step.
+     *
+     * @param hierarchicalStep the {@link HierarchicalStep} to set as active, or {@code null} to clear it
+     */
     void setHierarchicalStep(HierarchicalStep<H> hierarchicalStep);
 
+    /**
+     * Returns the currently active hierarchical step.
+     *
+     * @return the active {@link HierarchicalStep}, or {@code null} if no hierarchical step is currently active
+     */
     HierarchicalStep<H> getHierarchicalStep();
 
     /**

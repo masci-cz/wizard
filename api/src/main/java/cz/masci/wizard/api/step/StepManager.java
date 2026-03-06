@@ -11,7 +11,21 @@ package cz.masci.wizard.api.step;
  * @param <H> the type of status held by the HierarchicalStep
  */
 public interface StepManager<T extends StepState<H, L>, H, L> {
+  /**
+   * Advances the wizard to the next step.
+   * Implementations may skip the transition if the current step is not valid.
+   */
   void next();
+
+  /**
+   * Returns the wizard to the previous step.
+   */
   void prev();
+
+  /**
+   * Returns the current step state reflecting the active leaf and hierarchical step.
+   *
+   * @return the current {@code T} step state instance
+   */
   T get();
 }

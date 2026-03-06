@@ -6,10 +6,14 @@ package cz.masci.wizard.api.step;
  * It represents a single step that does not have any child steps.
  * For hierarchical step use {@link HierarchicalStep}.
  * </pre>
+ *
+ * @param <T> the type of value held by this leaf step
  */
 public interface LeafStep<T> extends Step {
     /**
      * Name of the step.
+     *
+     * @return the display name of this step
      */
     String getName();
 

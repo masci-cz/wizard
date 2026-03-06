@@ -16,11 +16,15 @@ package cz.masci.wizard.api.step;
 public interface HierarchicalStep<T> extends Step {
     /**
      * Set the parent hierarchical step.
+     *
+     * @param parent the parent {@link HierarchicalStep}, or {@code null} if this is the root step
      */
     void setParent(HierarchicalStep<T> parent);
 
     /**
      * Get the parent hierarchical step.
+     *
+     * @return the parent {@link HierarchicalStep}, or {@code null} if this is the root step
      */
     HierarchicalStep<T> getParent();
 
@@ -29,6 +33,8 @@ public interface HierarchicalStep<T> extends Step {
      * Get the current child step index.
      * It is -1 when the step has not been started yet.
      * </pre>
+     *
+     * @return the zero-based index of the current child step, or {@code -1} if navigation has not started
      */
     int getCurrentIdx();
 
@@ -63,5 +69,11 @@ public interface HierarchicalStep<T> extends Step {
      */
     void rewind();
 
+    /**
+     * Get the status value held by this hierarchical step.
+     * The status can represent aggregate data, enabled/disabled navigation state, or any other summary.
+     *
+     * @return the status value of type {@code T}, or {@code null} if no status is set
+     */
     T getStatus();
 }
