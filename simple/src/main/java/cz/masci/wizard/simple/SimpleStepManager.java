@@ -17,6 +17,12 @@ public class SimpleStepManager<T extends StepState<H, L>, H, L> implements StepM
     private final T state;
     private final HierarchicalStep<H> root;
 
+    /**
+     * Constructs a {@code SimpleStepManager} with the given state and root hierarchical step.
+     *
+     * @param state the current step state; must not be {@code null}
+     * @param root  the root hierarchical step of the wizard; must not be {@code null}
+     */
     public SimpleStepManager(T state, HierarchicalStep<H> root) {
         assert state != null : "state must not be null";
         assert root != null : "root must not be null";
@@ -49,6 +55,11 @@ public class SimpleStepManager<T extends StepState<H, L>, H, L> implements StepM
         step(HierarchicalStep::prev, this::prev);
     }
 
+    /**
+     * Returns the current step state.
+     *
+     * @return the current step state
+     */
     @Override
     public T get() {
         return state;

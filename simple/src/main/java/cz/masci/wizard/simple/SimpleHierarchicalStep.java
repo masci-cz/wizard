@@ -34,6 +34,9 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
 
     private static final BiPredicate<Integer, Step> NO_SKIP = (idx, step) -> false;
 
+    /**
+     * The list of child steps managed by this hierarchical step.
+     */
     protected final List<Step> children = new ArrayList<>();
     private final Consumer<SimpleHierarchicalStep<T>> doBeforeEntry;
     private final Consumer<SimpleHierarchicalStep<T>> doBeforeReverseEntry;
@@ -54,6 +57,23 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
     @Getter
     private final T status;
 
+    /**
+     * Constructs a {@code SimpleHierarchicalStep} with the given children, status, hook callbacks,
+     * and skip/cancel predicates.
+     *
+     * @param children                  the child steps to add to this hierarchical step
+     * @param status                    the status object associated with this step
+     * @param doBeforeEntry             consumer executed once before entering this step moving forward
+     * @param doBeforeReverseEntry      consumer executed once before entering this step moving backward
+     * @param doBeforeNext              consumer executed before moving to the next child step
+     * @param doAfterNext               consumer executed after moving to the next child step
+     * @param doBeforePrev              consumer executed before moving to the previous child step
+     * @param doAfterPrev               consumer executed after moving to the previous child step
+     * @param skipNextStepPredicate     predicate that determines whether a child step should be skipped when moving forward
+     * @param skipPrevStepPredicate     predicate that determines whether a child step should be skipped when moving backward
+     * @param cancelNextStepPredicate   predicate that determines whether forward navigation should be cancelled
+     * @param cancelPrevStepPredicate   predicate that determines whether backward navigation should be cancelled
+     */
     @Builder
     public SimpleHierarchicalStep(
             @Singular("addChild") List<Step> children,
@@ -175,6 +195,9 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
         rewindTo(-1);
     }
 
+    /**
+     * Rewinds the hierarchical step and all its child hierarchical steps to the first child step.
+     */
     @Override
     public void rewind() {
         rewindTo(0);
@@ -194,6 +217,15 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
         }
     }
 
+    /**
+     * Returns the current leaf step of the given type, if one is active.
+     * If the current child is itself a hierarchical step, it delegates recursively.
+     *
+     * @param <S>   the leaf step type to look for
+     * @param clazz the class of the leaf step type
+     * @return an {@link Optional} containing the current leaf step cast to the requested type,
+     *         or empty if no matching leaf step is active
+     */
     public <S extends LeafStep<?>> Optional<S> getCurrentLeafStep(Class<S> clazz) {
         Optional<S> leafStep = Optional.empty();
 
@@ -225,14 +257,30 @@ public class SimpleHierarchicalStep<T> implements HierarchicalStep<T> {
         return children.size();
     }
 
+    /**
+     * Returns {@code true} if the current step is the first child step or before it.
+     *
+     * @return {@code true} if the current index is at most 0
+     */
     public boolean isFirstStep() {
         return currentIdx <= 0;
     }
 
+    /**
+     * Returns {@code true} if the current step is the last child step or after it.
+     *
+     * @return {@code true} if the current index is at least {@code children.size() - 1}
+     */
     public boolean isLastStep() {
         return currentIdx >= children.size() - 1;
     }
 
+    /**
+     * Sets the current index to the given value, allowing direct navigation to a specific child step.
+     *
+     * @param idx the index to set; must be in the range {@code [-1, children.size()]}
+     * @throws IndexOutOfBoundsException if {@code idx} is outside the valid range
+     */
     public void setCurrentIdx(int idx) {
         if (idx < -1 || idx > children.size()) {
             throw new IndexOutOfBoundsException("Index: " + idx + ", Size: " + children.size());
