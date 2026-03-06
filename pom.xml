@@ -3,14 +3,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cz.masci.wizard</groupId>
-    <artifactId>wizard</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <artifactId>parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>Wizard</name>
     <description>Wizard library</description>
     <url>https://github.com/masci-cz/wizard</url>
+
+    <modules>
+        <module>bom</module>
+        <module>api</module>
+        <module>simple</module>
+    </modules>
 
     <properties>
         <java.version>21</java.version>
@@ -18,7 +24,10 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
 
         <junit.version>6.0.0</junit.version>
+        <mockito.version>5.20.0</mockito.version>
         <lombok.version>1.18.42</lombok.version>
+
+        <!-- Dependency versions of artifacts used in modules and needed for running -->
 
         <!-- maven plugin versions -->
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
@@ -42,6 +51,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -61,6 +80,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
             <!-- Deploy components to Sonatype Central Portal -->
             <plugin>
